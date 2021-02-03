@@ -37,17 +37,19 @@ def welcome():
     return (
         f"Available Routes:<br/>"
         f"Measurements: /api/v1.0/measurements<br/>"
-        f"/api/v1.0/stations"
+        f"Stations: /api/v1.0/stations"
+        f"Temperatures in 2016-2017: /api/v1.0/temperature"
+        f"Precipitation in 2016-2017: /api/v1.o/prcp"
     )
 
 @app.route("/api/v1.0/date")
 def date():
     # Create our session (link) from Python to the DB
     session = Session(engine)
-
+    
     """Return a list of all temperature measurements"""
     # Query all dates
-    results = session.query(Measurement.date).all()
+    results = session.query(Measurement.date).order_by(Measurement.date.desc()).first()[0]
 
     session.close()
 
@@ -58,22 +60,22 @@ def date():
 
 @app.route("/api/v1.0/measurements")
 def measurements():
+
 # Create our session (link) from Python to the DB
     session = Session(engine)
 
-"""Return a list of measuement data including the date, temperature, and prcp of each measurement"""
-# Query all measurements
-results = session.query(Measurement.date, Measurement.tobs, Measurement.prcp).all()
-
-session.close()
+    """Return a list of measuement data including the date, temperature, and prcp of each measurement"""
+    # Query all measurements
+    results = session.query(Measurement.date, Measurement.tobs, Measurement.prcp).all()
+    session.close()
 
 # Create a dictionary from the row data and append to a list of all_measuements
 all_measurements = []
 for date, tobs, prcp in results:
     measurement_dict = {}
-    measurement_dict["date"] = name
-    measurement_dict["tobs"] = age
-    measurement_dict["prcp"] = sex
+    measurement_dict["date"] = date
+    measurement_dict["tobs"] = temperature
+    measurement_dict["prcp"] = prcp
     all_measurement.append(measurement_dict)
 
 return jsonify(all_measurement)
